@@ -2,36 +2,37 @@
 
 > **Continuous Improvement (PDCA) meets Statistical Rigor (Six Sigma).**
 
-Welcome to the **Kaizen-Sigma Methodology** repository. This project is a specialized transformation of the Sigma Lattice Auditor, pivoted towards a Kaizen-centered framework for continuous measurement, waste reduction (**Muda**), and standardized work stability.
+Welcome to the **Kaizen-Sigma Methodology** repository. This project is a specialized transformation of the Sigma Lattice Auditor, pivoted towards an autonomous, self-healing framework for continuous measurement, waste reduction (**Muda**), and standardized work stability.
 
 ---
 
-## 🏗️ The Kaizen-Sigma Framework
+## 🏗️ The Kaizen-Sigma Architecture
 
-This repository implements the **Continuous Improvement Loop (PDCA)** as a core engine for process reliability:
+This repository implements a fully autonomous DMAIC / PDCA loop:
 
-1.  **Plan**: Analyze logs for variance and waste (Muda).
-2.  **Do**: Execute iterative improvements and data generation.
-3.  **Check**: Verify stability against the **Standardization Wedge**.
-4.  **Act**: Update standards to prevent quality backslide.
+1. **Measure & Analyze**: Generate synthetic logs and track waste (Muda).
+2. **SPC & Trend Intelligence**: Monitor real-time process stability using Western Electric / Nelson Rules and rolling Cpk trajectory.
+3. **Autonomous Check**: Evaluate capability against the **1.33 Cpk Production Gate** and **3.4 DPMO Limit**.
+4. **Self-Heal (Auto-Remediation)**: Iteratively tighten variance automatically when the process drifts out of control, governed by a Loop Guard.
+5. **Act**: Update process standards securely to prevent quality backsliding.
 
 ---
 
 ## 📊 Core Components
 
-### 🔄 PDCA Engine (`scripts/audit_engine/`)
+### 🔄 Autonomous Workflow (`scripts/audit_engine/`)
+- **`agent_orchestrator.py`**: The main agentic control node. Orchestrates SPC checks, capability analysis, and self-healing.
+- **`auto_remediation.py`**: A variance-tightening sub-agent that drives Cpk back above the gate when `INTERVENTION_REQUIRED` is triggered.
+- **`kaizen_dashboard.py`**: Generates a rich 5-panel dark-mode dashboard (Muda Decay, PCE, Lead Time, Cpk Trend, Loop Guard Status).
+- **`kaizen_data_gen.py` & `pdca_act.py`**: Legacy data generation and standard updating layers.
 
-An automated audit engine that models the evolution of process maturity.
-
-- **`kaizen_data_gen.py`**: Generates synthetic audit logs.
-- **`pdca_act.py`**: Automatically updates the "Standardization Wedge" when performance peaks are reached.
-- **`kaizen_dashboard.py`**: Generates visual performance charts (Muda Decay, PCE Progression).
-- **`generate_report.py`**: Creates a comprehensive `KAIZEN_SIGMA_REPORT.md` artifact.
+### 🧠 Statistical Intelligence (`src/auditor/`)
+- **`spc.py`**: Statistical Process Control implementing 8 Nelson Rules to catch non-random signals before they cause defects.
+- **`trend.py`**: Rolling 30-event Cpk drift tracking and trajectory classification (`IMPROVING`, `STABLE`, `DEGRADING`).
+- **`logic.py`**: Core Six Sigma (Cpk, Sigma Level) and Lean (PCE) math.
 
 ### 📜 Methodology & Standards (`methodology/`)
-
-- **`kaizen_events/`**: Stores continuous improvement logs (`continuous_improvement_log.csv`).
-- **`standard_work/`**: Contains the **Process Standards Wedge** (`process_standards.md`), defining the current "Best Practice" benchmarks.
+- **`standard_work/process_standards.md`**: Contains the **Automated Verification Thresholds**, Loop Guard policy, and the current "Best Practice" benchmarks.
 
 ---
 
@@ -45,41 +46,45 @@ Ensure you have Python 3.11+ and a virtual environment ready:
 python -m venv venv
 .\venv\Scripts\activate
 pip install -r requirements.txt
+pip install -e .
 ```
 
-### 🛠️ Running the Kaizen Cycle
+### 🛠️ Running the Pipeline Locally
 
-1.  **Execute the Integrated Audit Pipeline**:
-
+1. **Execute the Full TDD Suite**:
     ```powershell
-    # Generate data and evaluate against standards
-    python scripts/audit_engine/kaizen_data_gen.py
-    $env:PYTHONPATH = "src"; python gatekeeper.py
+    python -m pytest tests/ -v --tb=short
     ```
 
-2.  **Generate Visual Reports**:
+2. **Run the Autonomous Control Node**:
+    ```powershell
+    # Triggers Check phase, Trend analysis, SPC, and Auto-Remediation (if needed)
+    python scripts/audit_engine/agent_orchestrator.py
+    ```
+
+3. **Generate the 5-Panel Dashboard**:
     ```powershell
     python scripts/audit_engine/kaizen_dashboard.py
-    python scripts/audit_engine/generate_report.py
     ```
-    Review `data/KAIZEN_SIGMA_REPORT.md` for a full breakdown of Six Sigma and Kaizen metrics.
+    *View `data/visuals/kaizen_dashboard.png`.*
 
 ---
 
-## 📈 Quality Metrics Verified
+## 📈 Quality Gates Verified
 
-- **Cpk (Process Capability)**: Statistical rigor to ensure < 0.1% defect rate.
-- **PCE % (Process Cycle Efficiency)**: Ratio of value-add time to total lead time.
-- **Muda Reduction**: Exponential decay tracking of non-value-add hours.
-- **Standardization Wedge**: Automated protection against quality backsliding.
+| Metric | Target / Gate | Action on Breach |
+| :--- | :--- | :--- |
+| **Cpk (Capability)** | **≥ 1.33** | Triggers Auto-Remediation Loop |
+| **DPMO Estimate** | **≤ 64.0** | Alert logged in Audit Report |
+| **SPC Status** | **IN_CONTROL** | Nelson rule violation logged for review |
+| **Remediation Loops** | **≤ 3** | Pipeline halted (Human Escalation) |
+| **Muda (Waste)** | **< 5.0 hrs** | Triggers Kaizen Blitz |
 
 ---
 
 ## 🛡️ Governance & Safety
 
-Powered by the **Antigravity AI Auditor**, enforcing a **"Stop-the-Line"** policy via the `antigravity.yaml` CI configuration.
-Every commit is audited for statistical stability and process efficiency before being merged.
+Powered by the **Google Antigravity Pipeline** and **GitHub Actions** (`.github/workflows/kaizen_audit.yml`).
+Every commit must pass 52+ TDD tests covering statistical boundaries, loop guard state machines, and edge cases before the orchestrator is allowed to run in CI.
 
----
-
-_Ref: Kaizen Continuous Improvement (Pages 247-254)_
+_Ref: Kaizen Continuous Improvement (Pages 247-254) | DMAIC Control Phase_

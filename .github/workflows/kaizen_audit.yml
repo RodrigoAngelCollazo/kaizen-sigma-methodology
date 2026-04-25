@@ -1,0 +1,57 @@
+name: Kaizen-Sigma Integrated Audit
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  audit-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest
+
+    - name: 1. Generate Baseline Kaizen Data
+      run: |
+        python scripts/audit_engine/kaizen_data_gen.py
+
+    - name: 2. TDD Validation Suite (Quality Gate)
+      run: |
+        export PYTHONPATH=$PYTHONPATH:$(pwd)/src
+        python -m pytest tests/ -v --tb=short
+
+    - name: 3. Autonomous Sigma-Analysis Node
+      run: |
+        export PYTHONPATH=$PYTHONPATH:$(pwd)/src
+        python scripts/audit_engine/agent_orchestrator.py
+
+    - name: 4. Generate Visual Dashboard
+      run: |
+        export PYTHONPATH=$PYTHONPATH:$(pwd)/src
+        python scripts/audit_engine/kaizen_dashboard.py
+
+    - name: 5. Legacy Audit Engine (Gatekeeper)
+      run: |
+        export PYTHONPATH=$PYTHONPATH:$(pwd)/src
+        python gatekeeper.py
+
+    - name: 6. Archive Output Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: kaizen-sigma-artifacts
+        path: |
+          data/
+          methodology/kaizen_events/

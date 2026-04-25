@@ -22,10 +22,40 @@ steps:
       python scripts/audit_engine/kaizen_data_gen.py
       python scripts/audit_engine/pdca_act.py
 
+  - name: TDD Validation — Phase 6 (Trend & Remediation Suite)
+    run: |
+      export PYTHONPATH=$PYTHONPATH:$(pwd)/src
+      python -m pytest tests/test_phase6.py -v --tb=short
+    failure_policy:
+      action: "terminate_immediately"
+
+  - name: TDD Validation (Sigma Analysis Suite)
+    run: |
+      export PYTHONPATH=$PYTHONPATH:$(pwd)/src
+      pip install scipy --quiet
+      python -m pytest tests/test_sigma_analysis.py -v --tb=short
+    failure_policy:
+      action: "terminate_immediately"
+
+  - name: Autonomous Sigma-Analysis Node (Check Phase)
+    run: |
+      export PYTHONPATH=$PYTHONPATH:$(pwd)/src
+      python scripts/audit_engine/agent_orchestrator.py
+    failure_policy:
+      action: "terminate_immediately"
+      on_failure:
+        - type: "webhook"
+          url: "${AUDIT_WEBHOOK_URL}"
+          payload:
+            event: "SIGMA_ANALYSIS_INTERVENTION"
+            project: "kaizen-sigma-methodology"
+            attribution: "Autonomous Check — Purmamarca Sigma Lattice"
+
   - name: Integrated Audit (Stop the Line)
     run: |
       export PYTHONPATH=$PYTHONPATH:$(pwd)/src
       python gatekeeper.py
+
     failure_policy:
       action: "terminate_immediately"
       on_failure:

@@ -58,3 +58,59 @@ This project transforms the **Sigma Lattice Auditor** into a robust framework th
 - [x] **Reliability Target**: 99.9% (3.09 Sigma).
 - [x] **Muda Reduction**: Exponential decay logic active.
 - [x] **Stability**: Integrated Cpk >= 1.33 quality gate locally verified.
+
+---
+
+## Phase 5: Autonomous Agentic Control Node (Current Sprint)
+
+_Implements the Six Sigma "Check" phase as a self-governing, loop-protected workflow node._
+
+- [x] **`scripts/audit_engine/agent_orchestrator.py`** — `sigma_analysis()` function
+  - Evaluates Cpk, Sigma Level, and DPMO estimate against the 3.4 DPMO world-class limit
+  - Returns structured result payload: `PASSED` | `INTERVENTION_REQUIRED` | `LOOP_GUARD_ESCALATION`
+- [x] **Loop Guard** — Persists state in `data/loop_guard_state.json`; escalates after 3 consecutive failed Check cycles
+- [x] **`methodology/standard_work/process_standards.md`** — New "Automated Verification Thresholds" section
+  - 3.4 DPMO benchmark table, production gate table, Loop Guard policy state machine, verification checklist
+- [x] **`tests/test_sigma_analysis.py`** — 22 TDD tests covering all three states + edge cases
+- [x] **`antigravity.yaml`** — Pipeline wired to run `agent_orchestrator.py` as the primary sigma-analysis step
+- [x] Committed & pushed: `feat: implement autonomous sigma-analysis node with loop-guard and verification logic`
+
+---
+
+## Phase 6: Trend Intelligence, Auto-Remediation & Enhanced Visualization (Current Sprint)
+
+_Closes the autonomous DMAIC loop: Check → Analyse → Self-Heal → Visualize._
+
+- [x] **`src/auditor/trend.py`** — `sigma_trend_analysis()` + `append_cpk_to_history()` + `load_trend_state()`
+  - Rolling 30-event Cpk window; classifies `IMPROVING` | `STABLE` | `DEGRADING` via linear regression slope
+  - Drift alert fires when first-half vs second-half Cpk mean drops ≥ 0.10
+  - Persists state to `data/sigma_trend_state.json`; appends to `data/cpk_history.csv`
+- [x] **`scripts/audit_engine/auto_remediation.py`** — `auto_remediate()`
+  - Triggered by orchestrator on `INTERVENTION_REQUIRED`
+  - Applies `0.80^loop_count` variance reduction to regenerate `data/raw_measurements.csv`
+  - Logs each remediation action to `data/remediation_log.csv`
+  - Hard std floor at `0.05` prevents degenerate data
+- [x] **`scripts/audit_engine/kaizen_dashboard.py`** — 5-panel dark-mode dashboard
+  - Panel 4: Rolling Cpk trend with gate lines + trajectory annotation
+  - Panel 5: Loop Guard status indicator (badge + visual loop counter bar)
+- [x] **`tests/test_phase6.py`** — 30 TDD tests (trend analysis × 15, auto-remediation × 15)
+- [x] **`agent_orchestrator.py`** — Wired trend + remediation into the post-analysis flow
+- [x] **`antigravity.yaml`** — Phase 6 TDD step added before Phase 5 gate
+- [x] Committed & pushed: `feat: implement sigma-trend analysis, auto-remediation sub-agent, and enhanced 5-panel dashboard`
+
+---
+
+## Phase 7: Statistical Process Control & Open Source CI/CD (Current Sprint - Completed)
+
+_Adds Western Electric anomaly detection and finalizes the architecture documentation._
+
+- [x] **`src/auditor/spc.py`** — `run_spc_analysis()` + `spc_summary()`
+  - Implements 8 Nelson / Western Electric Rules for special-cause variation detection
+  - Persists stateless per-run analysis to `data/spc_state.json`
+- [x] **`tests/test_spc.py`** — 35 TDD tests covering all 8 rules and edge cases
+- [x] **`agent_orchestrator.py`** — SPC analysis wired directly into the core Six Sigma metrics payload
+- [x] **`README.md`** — Completely rewritten to document the Phase 1–7 autonomous DMAIC architecture, 5-panel dashboard, and pipeline quality gates
+- [x] **`.github/workflows/kaizen_audit.yml`** — Standard GitHub Actions CI/CD workflow mirroring `antigravity.yaml`
+- [x] Committed & pushed: `feat: implement SPC Nelson rules engine, Github Actions CI, and complete README architecture docs`
+
+

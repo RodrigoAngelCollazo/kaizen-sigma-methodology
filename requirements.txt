@@ -4,3 +4,5 @@ scipy
 matplotlib
 flake8
 bandit
+langgraph
+langchain-core

@@ -6,6 +6,10 @@ Welcome to the **Kaizen-Sigma Methodology** repository. This project is a specia
 
 ---
 
+## Agentic PDCA Workflow Architecture
+
+![Workflow Graph](workflow_graph.png)
+
 ## 🏗️ The Kaizen-Sigma Architecture
 
 This repository implements a fully autonomous DMAIC / PDCA loop:
